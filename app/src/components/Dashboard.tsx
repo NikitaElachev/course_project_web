@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Account, Category, Transaction } from '../types';
-import { formatCurrency, calculateTotalPortfolioBalance, transliterate } from '../utils';
+import { formatCurrency, calculateTotalPortfolioBalance } from '../utils';
 import CategoryIcon from './CategoryIcon';
 import { jsPDF } from 'jspdf';
+import { robotoBase64 } from '../fonts/Roboto'; 
 
 interface DashboardProps {
   accounts: Account[];
@@ -107,25 +108,27 @@ export default function Dashboard({
   const handleExportPDF = () => {
     try {
       const doc = new jsPDF();
-      doc.setFont('courier', 'bold');
-      // Используем функцию транслитера, чтобы не появлялись непонятные символы
-      doc.text(transliterate('== ФИНАНСОВЫЙ ОБЗОР =='), 15, 20);
-      doc.setFont('courier', 'normal');
-      doc.text(`${transliterate('Общий баланс')}: ${totalBalance} RUB`, 15, 30);
-      doc.text(`${transliterate('Доходы за месяц')}: ${monthlyIncomes} RUB`, 15, 40);
-      doc.text(`${transliterate('Расходы за месяц')}: ${monthlyExpenses} RUB`, 15, 50);
+      
+      // Подключаем кастомный шрифт
+      doc.addFileToVFS("Roboto-Regular.ttf", robotoBase64);
+      doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
+      doc.setFont("Roboto", "normal"); 
+      doc.text('== ФИНАНСОВЫЙ ОБЗОР ==', 15, 20);
+      doc.text(`Общий баланс: ${totalBalance} RUB`, 15, 30);
+      doc.text(`Доходы за месяц: ${monthlyIncomes} RUB`, 15, 40);
+      doc.text(`Расходы за месяц: ${monthlyExpenses} RUB`, 15, 50);
       
       let currentY = 65;
       if (displayExpensesByCategory.length > 0) {
-        doc.text(transliterate('== Расходы по категориям =='), 15, currentY);
+        doc.text('== ФИНАНСОВЫЙ ОБЗОР ==', 15, 20);
         currentY += 10;
         displayExpensesByCategory.forEach(cat => {
-            doc.text(`${transliterate(cat.name)}: ${cat.amount} (${cat.percentage}%)`, 15, currentY);
+            doc.text(`${cat.name}: ${cat.amount} (${cat.percentage}%)`, 15, currentY);
             currentY += 10;
         });
       }
 
-      doc.save('finance_dashboard_report.pdf'); // Инициирует скачивание файла в браузере
+      doc.save('finance_dashboard_report.pdf');
     } catch(err) {
       console.error(err);
     }
