@@ -290,7 +290,7 @@ def create_account(account: AccountCreate, user_id: int = 1):
 @app.delete("/api/accounts/{account_id}")
 def delete_account(account_id: int, user_id: int = 1):
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
     try:
         require_editor(cursor, user_id)
         cursor.execute("SELECT id FROM accounts WHERE id = %s AND user_id = %s", (account_id, user_id))
@@ -525,7 +525,7 @@ def update_transaction(transaction_id: int, trans: TransactionCreate, user_id: i
 @app.delete("/api/transactions/{transaction_id}")
 def delete_transaction(transaction_id: int, user_id: int = 1):
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
     try:
         require_editor(cursor, user_id)
         cursor.execute("DELETE FROM transactions WHERE id = %s", (transaction_id,))
